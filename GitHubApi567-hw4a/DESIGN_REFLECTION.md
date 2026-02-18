@@ -1,0 +1,7 @@
+# Design Reflection: Developing with the Tester in Mind
+
+**What I thought about when designing:** I wanted the main function to return structured data (a list of `{"repo": name, "commits": count}`) instead of only printing, so tests can assert on the result directly. I split “fetch from API” and “format output” into separate functions so each part can be tested on its own. I kept the HTTP calls in small helpers so we can mock `requests.get` in tests and never call the real GitHub API—that avoids rate limits and keeps tests fast and repeatable.
+
+**What I did to make it easy to test:** The formatter (`format_repos_output`) is a pure function: no I/O, no network. Tests for it only need to pass a list and check the returned strings. For the rest, we use `unittest.mock.patch("github_api.requests.get")` to control what the “API” returns (normal data, 404, empty list, etc.), so we can cover success and failure cases without touching GitHub. The `run()` function both prints and returns the lines, so tests can assert on the return value.
+
+**Challenges when testing:** The code calls the API multiple times (repos list, then commits per repo), so the mock had to return different values for each call—using `side_effect` with a list of responses fixed that. We also had to raise the same exception types the code catches (`requests.RequestException`, etc.) in the mock, or the tests wouldn’t match real behavior. The main difficulty was avoiding any real API calls so we don’t hit GitHub’s rate limit while still testing both normal and error paths.

@@ -1,0 +1,8 @@
+language: python
+python:
+  - "3.9"
+install:
+  - pip install -r GitHubApi567-hw4a/requirements.txt
+script:
+  - python -m unittest test_triangle -v
+  - cd GitHubApi567-hw4a && python -m unittest test_github_api -v
