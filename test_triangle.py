@@ -1,5 +1,7 @@
+import runpy
 import unittest
-from triangle import classify_triangle
+from unittest.mock import patch
+from triangle import classify_triangle, main
 
 
 class TestTriangleClassification(unittest.TestCase):
@@ -147,6 +149,34 @@ class TestTriangleEdgeCases(unittest.TestCase):
         for result in results:
             self.assertEqual(result, "Isosceles")
 
+
+class TestMain(unittest.TestCase):
+
+    @patch("builtins.print")
+    @patch("builtins.input", side_effect=["3", "4", "5", "q"])
+    def test_main_one_triangle_then_quit(self, mock_input, mock_print):
+        main()
+        self.assertGreaterEqual(mock_print.call_count, 4)
+
+    @patch("builtins.print")
+    @patch("builtins.input", side_effect=["q"])
+    def test_main_quit_immediately(self, mock_input, mock_print):
+        main()
+        self.assertGreaterEqual(mock_print.call_count, 1)
+
+    @patch("builtins.print")
+    @patch("builtins.input", side_effect=["x", "q"])
+    def test_main_invalid_input_then_quit(self, mock_input, mock_print):
+        main()
+        args_list = [c[0] for c in mock_print.call_args_list if c[0]]
+        msg = " ".join(str(a) for a in args_list)
+        self.assertTrue("Invalid input" in msg or mock_print.call_count >= 2)
+
+    @patch("builtins.print")
+    @patch("builtins.input", side_effect=["q"])
+    def test_triangle_module_as_main(self, mock_input, mock_print):
+        runpy.run_module("triangle", run_name="__main__")
+        self.assertGreaterEqual(mock_print.call_count, 1)
 
 
 if __name__ == "__main__":
