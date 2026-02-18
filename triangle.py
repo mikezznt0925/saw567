@@ -1,5 +1,3 @@
-"""Triangle classification by side lengths (Equilateral, Isosceles, Scalene, Right)."""
-
 
 def classify_triangle(a, b, c):
     """Return triangle type or 'Invalid triangle' for invalid sides."""
